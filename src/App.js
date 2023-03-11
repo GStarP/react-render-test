@@ -1,22 +1,21 @@
 /**
- * @branch use-memo
- * @target when to use useMemo?
+ * @branch pass-jsx-element
+ * @target when pass jsx element, will useMemo work?
  */
 
 /**
- * useMemo is the same as useCallback, more specifically, useCallback is a syntax sugar for useMemo!
- * So, useMemo also works with React.memo, and component should depends on a parent component generated object.
+ * Pass JSX.Element, such as props.children, is the same as pass object.
+ * So useMemo also works!
  */
 
 import { memo, useMemo, useState } from "react";
 
-const MemoCalculator = memo((props) => {
-  console.log("MemoCalculator render", props.id);
+const MemoChildComponent = memo((props) => {
+  console.log("MemoChildComponent render", props.id);
   return (
     <div>
-      <div>calculator {props.id}</div>
-      <button onClick={props.operation.inc}>Inc</button>
-      <button onClick={props.operation.dec}>Dec</button>
+      <div>Child Component {props.id}</div>
+      {props.children}
     </div>
   );
 });
@@ -24,25 +23,23 @@ const MemoCalculator = memo((props) => {
 function App() {
   const [count, setCount] = useState(0);
 
-  const operation = {
-    inc: () => setCount((val) => val + 1),
-    dec: () => setCount((val) => val - 1),
-  };
-
-  const memoOperaion = useMemo(() => {
-    return {
-      inc: () => setCount((val) => val + 1),
-      dec: () => setCount((val) => val - 1),
-    };
-  }, []);
-
   return (
     <div className="App">
       <h2>{count}</h2>
       {/* re-render */}
-      <MemoCalculator operation={operation} id="1"></MemoCalculator>
+      <MemoChildComponent id="1">
+        <div>element</div>
+      </MemoChildComponent>
       {/* not re-render */}
-      <MemoCalculator operation={memoOperaion} id="2"></MemoCalculator>
+      <MemoChildComponent id="2">
+        {useMemo(
+          () => (
+            <div>memo element</div>
+          ),
+          []
+        )}
+      </MemoChildComponent>
+      <button onClick={() => setCount((val) => val + 1)}>Add</button>
     </div>
   );
 }
